@@ -1,32 +1,50 @@
+import sqlite3
+from contextlib import closing
+import json
+import os
+
+DB_PATH = 'minecraft.db'
+
 def adicionar_item_sqlite(jogador_id, item, quantidade=1):
-    with closing(sqlite3.connect(DB_PATH)) as conn:
-        c = conn.cursor()
-        c.execute('''INSERT INTO inventario (jogador_id, item, quantidade)
-                     VALUES (?, ?, ?)
-                     ON CONFLICT(jogador_id, item) DO UPDATE SET quantidade = quantidade + ?''',
-                  (jogador_id, item, quantidade, quantidade))
-        conn.commit()
+    try:
+        with closing(sqlite3.connect(DB_PATH)) as conn:
+            c = conn.cursor()
+            c.execute('''INSERT INTO inventario (jogador_id, item, quantidade)
+                         VALUES (?, ?, ?)
+                         ON CONFLICT(jogador_id, item) DO UPDATE SET quantidade = quantidade + ?''',
+                      (jogador_id, item, quantidade, quantidade))
+            conn.commit()
+    except Exception as e:
+        print(f"Erro ao adicionar item SQLite: {e}")
 
 def remover_item_sqlite(jogador_id, item, quantidade=1):
-    with closing(sqlite3.connect(DB_PATH)) as conn:
-        c = conn.cursor()
-        c.execute('SELECT quantidade FROM inventario WHERE jogador_id = ? AND item = ?', (jogador_id, item))
-        row = c.fetchone()
-        if row and row[0] >= quantidade:
-            nova_qtd = row[0] - quantidade
-            if nova_qtd > 0:
-                c.execute('UPDATE inventario SET quantidade = ? WHERE jogador_id = ? AND item = ?', (nova_qtd, jogador_id, item))
-            else:
-                c.execute('DELETE FROM inventario WHERE jogador_id = ? AND item = ?', (jogador_id, item))
-            conn.commit()
-            return True
+    try:
+        with closing(sqlite3.connect(DB_PATH)) as conn:
+            c = conn.cursor()
+            c.execute('SELECT quantidade FROM inventario WHERE jogador_id = ? AND item = ?', (jogador_id, item))
+            row = c.fetchone()
+            if row and row[0] >= quantidade:
+                nova_qtd = row[0] - quantidade
+                if nova_qtd > 0:
+                    c.execute('UPDATE inventario SET quantidade = ? WHERE jogador_id = ? AND item = ?', (nova_qtd, jogador_id, item))
+                else:
+                    c.execute('DELETE FROM inventario WHERE jogador_id = ? AND item = ?', (jogador_id, item))
+                conn.commit()
+                return True
+            return False
+    except Exception as e:
+        print(f"Erro ao remover item SQLite: {e}")
         return False
 
 def get_inventario_sqlite(jogador_id):
-    with closing(sqlite3.connect(DB_PATH)) as conn:
-        c = conn.cursor()
-        c.execute('SELECT item, quantidade FROM inventario WHERE jogador_id = ?', (jogador_id,))
-        return dict(c.fetchall())
+    try:
+        with closing(sqlite3.connect(DB_PATH)) as conn:
+            c = conn.cursor()
+            c.execute('SELECT item, quantidade FROM inventario WHERE jogador_id = ?', (jogador_id,))
+            return dict(c.fetchall())
+    except Exception as e:
+        print(f"Erro ao obter inventário SQLite: {e}")
+        return {}
 
 def adicionar_xp_sqlite(jogador_id, quantidade_xp):
     with closing(sqlite3.connect(DB_PATH)) as conn:
@@ -58,10 +76,6 @@ def get_missoes_sqlite(jogador_id):
         c = conn.cursor()
         c.execute('SELECT missao, status, recompensa FROM missoes WHERE jogador_id = ?', (jogador_id,))
         return c.fetchall()
-import sqlite3
-from contextlib import closing
-
-DB_PATH = 'minecraft.db'
 
 def get_difficulty_multiplier(dificuldade, type_multiplier):
     """Retorna o multiplicador baseado na dificuldade."""
@@ -165,9 +179,6 @@ def get_blocos_quebrados(jogador_id):
         row = c.fetchone()
         return row[0] if row else 0
 
-import json
-import os
-
 ARQUIVO_INVENTARIO = "inventarios.json"
 ARQUIVO_TENTATIVAS = "tentativas_cacar.json"
 ARQUIVO_COLETANDO = "usuarios_coletando.json"
@@ -223,24 +234,39 @@ else:
 mensagens_coleta = {}
 
 def salvar_inventarios():
-    with open(ARQUIVO_INVENTARIO, "w") as f:
-        json.dump(inventarios, f, indent=4)
+    try:
+        with open(ARQUIVO_INVENTARIO, "w") as f:
+            json.dump(inventarios, f, indent=4)
+    except Exception as e:
+        print(f"Erro ao salvar inventários: {e}")
 
 def salvar_tentativas_cacar():
-    with open(ARQUIVO_TENTATIVAS, "w") as f:
-        json.dump(tentativas_cacar, f, indent=4)
+    try:
+        with open(ARQUIVO_TENTATIVAS, "w") as f:
+            json.dump(tentativas_cacar, f, indent=4)
+    except Exception as e:
+        print(f"Erro ao salvar tentativas caçar: {e}")
 
 def salvar_usuarios_coletando():
-    with open(ARQUIVO_COLETANDO, "w") as f:
-        json.dump(list(usuarios_coletando), f, indent=4)
+    try:
+        with open(ARQUIVO_COLETANDO, "w") as f:
+            json.dump(list(usuarios_coletando), f, indent=4)
+    except Exception as e:
+        print(f"Erro ao salvar usuários coletando: {e}")
 
 def salvar_vezes_explorar():
-    with open(ARQUIVO_VEZES_EXPLORAR, "w") as f:
-        json.dump(vezes_explorar, f, indent=4)
+    try:
+        with open(ARQUIVO_VEZES_EXPLORAR, "w") as f:
+            json.dump(vezes_explorar, f, indent=4)
+    except Exception as e:
+        print(f"Erro ao salvar vezes explorar: {e}")
 
 def salvar_travel_state():
-    with open(ARQUIVO_TRAVEL_STATE, "w") as f:
-        json.dump(travel_state, f, indent=4)
+    try:
+        with open(ARQUIVO_TRAVEL_STATE, "w") as f:
+            json.dump(travel_state, f, indent=4)
+    except Exception as e:
+        print(f"Erro ao salvar travel state: {e}")
 
 def possui_item(user_id, item):
     """Verifica se o usuário possui o item no inventário."""
@@ -268,64 +294,74 @@ def possui_item(user_id, item):
 
 def adicionar_item(user_id, item, quantidade=1):
     """Adiciona item ao inventário do usuário, criando stacks de 64 itens."""
-    user_id = str(user_id)
+    try:
+        user_id = str(user_id)
 
-    if user_id not in inventarios:
-        inventarios[user_id] = {"dificuldade": "facil"}
+        if user_id not in inventarios:
+            inventarios[user_id] = {"dificuldade": "facil"}
 
-    user_data = inventarios[user_id]
-    dificuldade = user_data.get("dificuldade", "normal")
+        user_data = inventarios[user_id]
+        dificuldade = user_data.get("dificuldade", "normal")
 
-    quantidade = int(quantidade * get_difficulty_multiplier(dificuldade, "reward"))
+        quantidade = int(quantidade * get_difficulty_multiplier(dificuldade, "reward"))
 
-    stacks = user_data.get(item, [])
-    if not isinstance(stacks, list):
-        stacks = [stacks] if stacks > 0 else []
+        stacks = user_data.get(item, [])
+        if not isinstance(stacks, list):
+            stacks = [stacks] if stacks > 0 else []
 
-    remaining = quantidade
-    for i in range(len(stacks)):
-        if stacks[i] < 64:
-            can_add = min(remaining, 64 - stacks[i])
-            stacks[i] += can_add
+        remaining = quantidade
+        for i in range(len(stacks)):
+            if stacks[i] < 64:
+                can_add = min(remaining, 64 - stacks[i])
+                stacks[i] += can_add
+                remaining -= can_add
+                if remaining <= 0:
+                    break
+
+        while remaining > 0:
+            can_add = min(remaining, 64)
+            stacks.append(can_add)
             remaining -= can_add
-            if remaining <= 0:
-                break
 
-    while remaining > 0:
-        can_add = min(remaining, 64)
-        stacks.append(can_add)
-        remaining -= can_add
+        if stacks:
+            user_data[item] = stacks
+        else:
+            if item in user_data:
+                del user_data[item]
 
-    if stacks:
-        user_data[item] = stacks
-    else:
-        if item in user_data:
-            del user_data[item]
+        salvar_inventarios()
 
-    salvar_inventarios()
-
-    return quantidade - remaining
+        return quantidade - remaining
+    except Exception as e:
+        print(f"Erro ao adicionar item: {e}")
+        return 0
 
 def contar_slots_inventario(user_id):
     """Conta o número total de slots ocupados no inventário do usuário."""
-    user_id = str(user_id)
-    
-    if user_id not in inventarios:
-        return 0
-    
-    user_data = inventarios[user_id]
-    total_slots = 0
-    
-    for item, stacks in user_data.items():
-        if item in ["xp", "nivel", "vida", "fome", "registrado", "dificuldade", "nome", "bioma_atual", "posicao", "mundo"]:
-            continue
+    try:
+        user_id = str(user_id)
         
-        if isinstance(stacks, list):
-            total_slots += len([stack for stack in stacks if stack > 0])
-        elif stacks and stacks > 0:
-            total_slots += 1
-    
-    return total_slots
+        if user_id not in inventarios:
+            return 0
+        
+        user_data = inventarios[user_id]
+        total_slots = 0
+
+        keys_to_ignore = ["xp", "nivel", "vida", "fome", "registrado", "dificuldade", "nome", "bioma_atual", "posicao", "mundo"]
+        
+        for item, stacks in user_data.items():
+            if item in keys_to_ignore:
+                continue
+            
+            if isinstance(stacks, list):
+                total_slots += len([stack for stack in stacks if stack > 0])
+            elif stacks and stacks > 0:
+                total_slots += 1
+        
+        return total_slots
+    except Exception as e:
+        print(f"Erro ao contar slots do inventário: {e}")
+        return 0
 
 def remover_item(user_id, item, quantidade=1):
     """Remove item do inventário do usuário, se possível."""

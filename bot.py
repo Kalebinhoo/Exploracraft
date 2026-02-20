@@ -118,6 +118,25 @@ async def setup_bot():
 
         bot.loop.create_task(hunger_task())
 
+        @bot.tree.error
+        async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
+            """Handler global para erros de slash commands."""
+            try:
+                print(f"Erro em comando slash: {error}")
+                print(f"Comando: {interaction.command.name if interaction.command else 'N/A'}")
+                print(f"Usuário: {interaction.user}")
+                print(f"Guild: {interaction.guild}")
+                
+                if not interaction.response.is_done():
+                    await interaction.response.send_message(
+                        "❌ **Ocorreu um erro inesperado!**\n\n"
+                        "Por favor, tente novamente em alguns segundos. "
+                        "Se o problema persistir, contate o suporte.",
+                        ephemeral=True
+                    )
+            except Exception as e:
+                print(f"Erro no handler de erro: {e}")
+
         print("\n--- Servidores do Bot ---")
         total_registered_sum = 0
         for guild in bot.guilds:
