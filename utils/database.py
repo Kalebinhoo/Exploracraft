@@ -306,6 +306,27 @@ def adicionar_item(user_id, item, quantidade=1):
 
     return quantidade - remaining
 
+def contar_slots_inventario(user_id):
+    """Conta o número total de slots ocupados no inventário do usuário."""
+    user_id = str(user_id)
+    
+    if user_id not in inventarios:
+        return 0
+    
+    user_data = inventarios[user_id]
+    total_slots = 0
+    
+    for item, stacks in user_data.items():
+        if item in ["xp", "nivel", "vida", "fome", "registrado", "dificuldade", "nome", "bioma_atual", "posicao", "mundo"]:
+            continue
+        
+        if isinstance(stacks, list):
+            total_slots += len([stack for stack in stacks if stack > 0])
+        elif stacks and stacks > 0:
+            total_slots += 1
+    
+    return total_slots
+
 def remover_item(user_id, item, quantidade=1):
     """Remove item do inventário do usuário, se possível."""
     user_id = str(user_id)
