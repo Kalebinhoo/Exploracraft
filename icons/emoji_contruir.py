@@ -1,0 +1,3 @@
+EMOJI_CONSTRUIR = {
+    "casa": "<:casa:1416047216115843114>"
+}

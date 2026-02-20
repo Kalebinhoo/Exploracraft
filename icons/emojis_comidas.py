@@ -1,0 +1,27 @@
+
+EMOJIS_COMIDAS = {
+    "trigo": "<:trigo:1410991160272617493>",
+    "bifecrua": "<:bifecrua:1409646924021108738>",
+    "frango": "<:frango:1391151674168447067>",
+    "cordeirocrua": "<:cordeirocrua:1409646925917196390>",
+    "costelacrua": "<:costelacrua:1409646920112148551>",
+    "cordeiro": "<:carneiro:1391151670800679062>",
+    "bifeassado": "<:File:1416035001270665247>",
+    "frangoassado": "<:FrangoAssado:1416035003166494861>",
+    "cordeiroassado": "<:CarneiroAssado:1416035005515431976>",
+    "costelaassada": "<:CosteletaAssada:1416034999567781929>",
+    "cenoura": "<:cenoura:1445427201221857381>",
+    "batata": "<:batata:1423103918522634311>",
+    "batataassada": "<:batataassada:1423103916232409100>",
+    "bacalhaucru": "<:bacalhaucru:1446499175272415252>",
+    "baiacu": "<:baiacu:1446499214044430336>",
+    "peixetropical": "<:pixeltropical:1446499519352279237>",
+    "salmaocru": "<:salmocru:1446499557075845362>",
+    "bacalhauassado": "<:bacalhauassado:1446568990490230996>",
+    "salmaoassado": "<:salmaoassado:1446569035218026496>",
+    "pão": "<:pao:1446574788813394121>",
+    "beterraba": "<:beterraba:1446604597777924176>",
+    "cana": "<:cana:1446604144231190579>",
+    "frangocrua": "<:frangocrua:1409646922272346162>",
+    "farinhadeosso": "<:farinhadeosso:1423103913778872381>"
+}
